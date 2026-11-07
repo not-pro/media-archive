@@ -1,0 +1,10 @@
+node_modules/
+dist/
+release/
+src-tauri/target/
+src-tauri/gen/
+sidecars/*/
+third-party-licenses/
+.tmp/
+*.log
+.DS_Store

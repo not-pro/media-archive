@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https:; connect-src ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Media Archive</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <div>
+        <p class="eyebrow">ЛОКАЛЬНАЯ МЕДИАТЕКА</p>
+        <h1>Media Archive</h1>
+        <p class="subtitle">Сохраняйте авторизованные материалы для просмотра офлайн.</p>
+      </div>
+      <span id="session-badge" class="badge">Без сессии</span>
+    </header>
+
+    <main>
+      <aside class="notice">
+        Доступ к просмотру не гарантирует экспорт. DRM и обход ограничений не поддерживаются.
+        Использование стороннего загрузчика может нарушать правила сервиса и привести к ограничениям
+        аккаунта.
+      </aside>
+
+      <section class="panel session-panel" aria-labelledby="session-title">
+        <div>
+          <h2 id="session-title">Доступ к сессии</h2>
+          <p id="session-description">
+            Для материалов с ограниченным доступом импортируйте cookies своей сессии в формате
+            Netscape. Пароль не нужен.
+          </p>
+        </div>
+        <div class="button-row compact">
+          <button id="import-cookies" type="button" class="secondary">Импорт cookies.txt</button>
+          <button id="clear-cookies" type="button" class="ghost" hidden>Удалить сессию</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <form id="url-form">
+          <label for="video-url">Ссылка на материал</label>
+          <div class="url-row">
+            <input
+              id="video-url"
+              name="url"
+              type="url"
+              required
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="https://…"
+            />
+            <button id="inspect" type="submit" class="primary">Проверить</button>
+          </div>
+        </form>
+
+        <div id="status" class="status" role="status" aria-live="polite" hidden></div>
+
+        <article id="video-card" class="video-card" hidden>
+          <img id="thumbnail" alt="Миниатюра материала" hidden />
+          <div class="video-info">
+            <h2 id="video-title"></h2>
+            <p id="video-details" class="muted"></p>
+          </div>
+        </article>
+
+        <div id="download-settings" class="settings" hidden>
+          <div class="field">
+            <label for="quality">Качество</label>
+            <select id="quality">
+              <option value="">Лучшее доступное</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="directory">Папка сохранения</label>
+            <div class="directory-row">
+              <input id="directory" type="text" readonly placeholder="Выберите папку" />
+              <button id="choose-directory" type="button" class="secondary">Выбрать</button>
+            </div>
+          </div>
+          <label class="checkbox-label">
+            <input id="overwrite" type="checkbox" />
+            Заменить файл, если он уже существует
+          </label>
+        </div>
+
+        <div id="progress-area" class="progress-area" hidden>
+          <progress id="progress" max="100" value="0"></progress>
+          <div class="progress-caption">
+            <span id="progress-text">Подготовка…</span>
+            <span id="speed-text"></span>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="download" type="button" class="primary large" disabled>Сохранить MP4</button>
+          <button id="cancel" type="button" class="danger large" hidden>Отменить</button>
+          <button id="open-directory" type="button" class="ghost large" disabled>
+            Открыть папку
+          </button>
+        </div>
+      </section>
+
+      <p class="footnote">
+        Обработка выполняется локально. Cookies шифруются системным хранилищем и не записываются в
+        журнал.
+      </p>
+    </main>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

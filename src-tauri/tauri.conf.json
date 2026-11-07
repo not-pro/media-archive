@@ -1,0 +1,44 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Media Archive",
+  "version": "1.0.0",
+  "identifier": "local.mediaarchive",
+  "mainBinaryName": "media-archive",
+  "build": {
+    "frontendDist": "../renderer",
+    "devUrl": null,
+    "beforeDevCommand": null,
+    "beforeBuildCommand": null
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "Media Archive",
+        "width": 780,
+        "height": 840,
+        "resizable": false,
+        "maximizable": false,
+        "minimizable": true,
+        "fullscreen": false,
+        "closable": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https:; connect-src ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'; form-action 'none'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["dmg", "nsis"],
+    "createUpdaterArtifacts": false,
+    "macOS": {
+      "minimumSystemVersion": "13.0"
+    },
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser"
+      }
+    }
+  }
+}

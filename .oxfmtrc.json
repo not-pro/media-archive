@@ -1,0 +1,29 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 100,
+  "singleQuote": true,
+  "ignorePatterns": [
+    "node_modules/",
+    "src-tauri/target/",
+    "src-tauri/gen/",
+    "sidecars/",
+    "third-party-licenses/",
+    "release/",
+    "dist/",
+    ".tmp/"
+  ],
+  "sortImports": {
+    "order": "asc",
+    "ignoreCase": false,
+    "newlinesBetween": true,
+    "groups": [
+      "side_effect",
+      "builtin",
+      "external",
+      "internal",
+      ["parent", "sibling", "index"],
+      "type",
+      "unknown"
+    ]
+  }
+}

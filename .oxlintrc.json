@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error"
+  },
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "jsPlugins": [
+    {
+      "name": "architecture",
+      "specifier": "./scripts/architecture-plugin.mjs"
+    }
+  ],
+  "ignorePatterns": ["dist/", "node_modules/", "release/", "sidecars/", "third-party-licenses/"],
+  "rules": {
+    "max-lines": ["error", { "max": 90, "skipBlankLines": false, "skipComments": false }],
+    "architecture/clean-viper": "error"
+  }
+}
