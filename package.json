@@ -1,13 +1,13 @@
 {
   "name": "media-archive",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "description": "Desktop media archive for authorized offline access",
   "license": "UNLICENSED",
   "scripts": {
     "build": "tauri build",
     "start": "node scripts/fetch-sidecars.mjs && tauri dev",
-    "test": "npm run format:check && npm run lint && cargo test --manifest-path src-tauri/Cargo.toml",
+    "test": "node scripts/check-sidecars.mjs && npm run format:check && npm run lint && cargo test --manifest-path src-tauri/Cargo.toml",
     "lint": "oxlint . && cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings",
     "format": "oxfmt . && cargo fmt --manifest-path src-tauri/Cargo.toml",
     "format:check": "oxfmt --check . && cargo fmt --check --manifest-path src-tauri/Cargo.toml",

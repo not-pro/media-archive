@@ -64,7 +64,7 @@
     },
     "ffprobe": {
       "url": "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.1.1/ffprobe-win32-x64",
-      "sha256": "3a7e2dc003dc2cd1472827e4c7c4f056ae1ae7c5bbc580c99b49827351ba4",
+      "sha256": "3a7e2dc003dc2cd1472827e4c7c4f056ae1ae0ae7c5bbc580c99b49827351ba4",
       "file": "ffprobe.exe"
     }
   }

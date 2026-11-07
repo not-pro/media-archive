@@ -2160,7 +2160,7 @@ dependencies = [
 
 [[package]]
 name = "media-archive"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "keyring",
  "libc",
