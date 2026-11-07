@@ -8,3 +8,4 @@ third-party-licenses/
 .tmp/
 *.log
 .DS_Store
+scripts/github-api.mjs
