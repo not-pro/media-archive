@@ -1,11 +1,11 @@
 {
   "name": "media-archive",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "description": "Desktop media archive for authorized offline access",
   "license": "UNLICENSED",
   "scripts": {
-    "build": "tauri build",
+    "build": "node scripts/fetch-sidecars.mjs && node scripts/bundle-config.mjs && node scripts/build.mjs",
     "start": "node scripts/fetch-sidecars.mjs && tauri dev",
     "test": "node scripts/check-sidecars.mjs && npm run format:check && npm run lint && cargo test --manifest-path src-tauri/Cargo.toml",
     "lint": "oxlint . && cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings",
@@ -13,7 +13,7 @@
     "format:check": "oxfmt --check . && cargo fmt --check --manifest-path src-tauri/Cargo.toml",
     "sidecars": "node scripts/fetch-sidecars.mjs",
     "sidecars:all": "node scripts/fetch-sidecars.mjs all",
-    "dist": "npm test && node scripts/fetch-sidecars.mjs && node scripts/bundle-config.mjs && tauri build --config .tmp/bundle-config.json"
+    "dist": "npm test && npm run build"
   },
   "devDependencies": {
     "@tauri-apps/cli": "2.12.4",

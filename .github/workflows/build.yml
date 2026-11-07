@@ -15,16 +15,23 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-15-arm64
+          - os: macos-15
             name: macos-arm64
+            target: aarch64-apple-darwin
+            sidecar: darwin-arm64
           - os: macos-15
             name: macos-x64
           - os: windows-latest
             name: windows-x64
     runs-on: ${{ matrix.os }}
+    env:
+      TAURI_TARGET: ${{ matrix.target }}
+      SIDECAR_TARGET: ${{ matrix.sidecar }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+      - if: matrix.target != ''
+        run: rustup target add ${{ matrix.target }}
       - uses: actions/setup-node@v4
         with:
           node-version: 24
