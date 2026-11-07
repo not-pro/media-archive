@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 
 const root = process.cwd();
-const target = process.env.SIDECAR_TARGET ?? `${process.platform}-${process.arch}`;
+const target = process.env.SIDECAR_TARGET || `${process.platform}-${process.arch}`;
 const config = {
   bundle: {
     resources: {

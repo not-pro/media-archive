@@ -9,7 +9,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const manifestFile = path.join(root, 'sidecars', 'manifest.json');
 const manifest = JSON.parse(await fs.readFile(manifestFile, 'utf8'));
 const requested = process.argv[2];
-const hostTarget = process.env.SIDECAR_TARGET ?? `${process.platform}-${process.arch}`;
+const hostTarget = process.env.SIDECAR_TARGET || `${process.platform}-${process.arch}`;
 const targets = requested === 'all' ? Object.keys(manifest) : [requested ?? hostTarget];
 
 for (const target of targets) {
