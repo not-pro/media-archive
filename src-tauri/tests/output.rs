@@ -8,10 +8,13 @@ fn parses_progress_and_output_path() {
     assert_eq!(progress.speed, Some(1024.0));
     assert_eq!(progress.eta, Some(15.0));
     assert!(parse_progress("[download] 50%").is_none());
-    assert_eq!(
-        parse_output_file("[download] MEDIA_FILE:\"/tmp/video.mp4\"").as_deref(),
-        Some("/tmp/video.mp4")
-    );
+    let absolute = if cfg!(windows) {
+        r"C:\video.mp4"
+    } else {
+        "/tmp/video.mp4"
+    };
+    let line = format!("MEDIA_FILE:{}", serde_json::to_string(absolute).unwrap());
+    assert_eq!(parse_output_file(&line).as_deref(), Some(absolute));
     assert_eq!(parse_output_file("MEDIA_FILE:\"relative.mp4\""), None);
 }
 
