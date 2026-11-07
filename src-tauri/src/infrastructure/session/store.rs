@@ -1,19 +1,28 @@
 use std::fs;
 use std::path::Path;
+use std::sync::Mutex;
 
 use keyring::{Entry, Error as KeyringError};
 use tempfile::tempdir;
 
-use crate::application::ports::SessionGateway;
 use crate::domain::error::{AppError, AppResult};
 use crate::infrastructure::session::filter::filter_session_cookies;
 
-#[derive(Default)]
-pub struct KeychainSessionStore;
+pub struct KeychainSessionStore {
+    guard: Mutex<()>,
+}
+
+impl Default for KeychainSessionStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl KeychainSessionStore {
     pub fn new() -> Self {
-        Self
+        Self {
+            guard: Mutex::new(()),
+        }
     }
 
     fn entry(&self) -> AppResult<Entry> {
@@ -29,10 +38,8 @@ impl KeychainSessionStore {
             )
         })
     }
-}
 
-impl SessionGateway for KeychainSessionStore {
-    fn has_session(&self) -> AppResult<bool> {
+    pub fn has_session(&self) -> AppResult<bool> {
         match self.entry()?.get_password() {
             Ok(_) => Ok(true),
             Err(KeyringError::NoEntry) => Ok(false),
@@ -40,7 +47,8 @@ impl SessionGateway for KeychainSessionStore {
         }
     }
 
-    fn import_file(&self, source: &Path) -> AppResult<()> {
+    pub fn import_file(&self, source: &Path) -> AppResult<()> {
+        let _lock = self.guard.lock().unwrap();
         let metadata = fs::metadata(source)
             .map_err(|error| AppError::new("COOKIES_INVALID", error.to_string()))?;
         if !metadata.is_file() || metadata.len() > 5 * 1024 * 1024 {
@@ -57,25 +65,41 @@ impl SessionGateway for KeychainSessionStore {
             .map_err(|error| AppError::new("SESSION_STORE_ERROR", error.to_string()))
     }
 
-    fn clear(&self) -> AppResult<()> {
+    pub fn clear(&self) -> AppResult<()> {
+        let _lock = self.guard.lock().unwrap();
         match self.entry()?.delete_credential() {
             Ok(()) | Err(KeyringError::NoEntry) => Ok(()),
             Err(error) => Err(AppError::new("SESSION_STORE_ERROR", error.to_string())),
         }
     }
 
-    fn with_cookie_file<T>(&self, operation: impl FnOnce(&Path) -> AppResult<T>) -> AppResult<T> {
+    pub fn with_cookie_file<T>(
+        &self,
+        operation: impl FnOnce(&Path) -> AppResult<T>,
+    ) -> AppResult<T> {
+        let _lock = self.guard.lock().unwrap();
         let directory =
             tempdir().map_err(|error| AppError::new("SESSION_IO_ERROR", error.to_string()))?;
         let file = directory.path().join("cookies.txt");
         write_private(&file, self.secret()?.as_bytes())?;
         let result = operation(&file)?;
-        let updated = fs::read_to_string(&file)
-            .map_err(|error| AppError::new("SESSION_IO_ERROR", error.to_string()))?;
-        self.entry()?
-            .set_password(&filter_session_cookies(&updated)?)
-            .map_err(|error| AppError::new("SESSION_STORE_ERROR", error.to_string()))?;
+        if let Ok(updated) = fs::read_to_string(&file)
+            && let Ok(filtered) = filter_session_cookies(&updated)
+        {
+            let _ = self.entry()?.set_password(&filtered);
+        }
         Ok(result)
+    }
+
+    pub fn with_cookie_file_or_none<T>(
+        &self,
+        operation: impl FnOnce(Option<&Path>) -> AppResult<T>,
+    ) -> AppResult<T> {
+        if self.has_session()? {
+            self.with_cookie_file(|file| operation(Some(file)))
+        } else {
+            operation(None)
+        }
     }
 }
 

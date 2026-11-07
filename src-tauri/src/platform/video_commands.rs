@@ -7,16 +7,16 @@ use crate::domain::entities::DownloadOptions;
 use crate::domain::error::{AppError, AppResult};
 use crate::platform::state::AppState;
 use crate::platform::tasks::blocking;
-use crate::presentation::view::{PublicError, present_error, present_video};
+use crate::presentation::view::{PublicError, present_error};
 
 #[tauri::command]
 pub async fn video_inspect(state: State<'_, AppState>, url: String) -> Result<Value, PublicError> {
-    let inspect = state.inspect.clone();
+    let videos = state.videos.clone();
+    let sessions = state.sessions.clone();
     blocking(move || {
-        inspect
-            .execute(&url)
-            .map(present_video)
-            .map(|view| json!(view))
+        let metadata =
+            sessions.with_cookie_file_or_none(|cookies| videos.inspect(&url, cookies))?;
+        Ok::<Value, AppError>(json!(metadata))
     })
     .await
 }
@@ -40,18 +40,20 @@ pub async fn download_start(
 ) -> Result<Value, PublicError> {
     let directory = validate_directory(&options).map_err(present_error)?;
     *state.directory.lock().unwrap() = Some(directory);
-    let downloads = state.downloads.clone();
+    let videos = state.videos.clone();
+    let sessions = state.sessions.clone();
     blocking(move || {
-        downloads
-            .execute(&options, &|progress| {
+        let result = sessions.with_cookie_file_or_none(|cookies| {
+            videos.download(&options, cookies, &|progress| {
                 let _ = app.emit("download:progress", progress);
             })
-            .map(|result| json!(result))
+        })?;
+        Ok::<Value, AppError>(json!(result))
     })
     .await
 }
 
 #[tauri::command]
 pub fn download_cancel(state: State<'_, AppState>) -> Value {
-    json!({ "cancelled": state.downloads.cancel() })
+    json!({ "cancelled": state.videos.cancel() })
 }

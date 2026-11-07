@@ -1,4 +1,3 @@
-use std::fs;
 use std::path::PathBuf;
 
 use tauri::{AppHandle, Manager};
@@ -40,6 +39,5 @@ pub fn verify_sidecars(paths: &SidecarPaths) -> AppResult<()> {
             ));
         }
     }
-    let _ = fs::metadata(&paths.engine);
     Ok(())
 }

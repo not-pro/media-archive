@@ -1,8 +1,7 @@
 use std::path::Path;
 
-use crate::application::ports::VideoGateway;
 use crate::domain::entities::{DownloadOptions, DownloadProgress, DownloadResult, VideoMetadata};
-use crate::domain::error::{AppError, AppResult};
+use crate::domain::error::AppResult;
 use crate::domain::media_url::normalize_media_url;
 use crate::infrastructure::engine::args::{SidecarPaths, inspect_args};
 use crate::infrastructure::engine::download_args::download_args;
@@ -23,10 +22,8 @@ impl MediaGateway {
             runner: MediaProcessRunner::new(),
         }
     }
-}
 
-impl VideoGateway for MediaGateway {
-    fn inspect(&self, url: &str, cookies: Option<&Path>) -> AppResult<VideoMetadata> {
+    pub fn inspect(&self, url: &str, cookies: Option<&Path>) -> AppResult<VideoMetadata> {
         let url = normalize_media_url(url)?;
         let args = inspect_args(&self.paths, cookies, &url);
         let result = self.runner.run(&self.paths.engine, &args, &|_| {})?;
@@ -39,20 +36,14 @@ impl VideoGateway for MediaGateway {
         parse_metadata(&result.stdout)
     }
 
-    fn download(
+    pub fn download(
         &self,
         options: &DownloadOptions,
         cookies: Option<&Path>,
         progress: &dyn Fn(DownloadProgress),
     ) -> AppResult<DownloadResult> {
-        if self.runner.running() {
-            return Err(AppError::new(
-                "DOWNLOAD_BUSY",
-                "Сначала отмените текущее скачивание.",
-            ));
-        }
         if !Path::new(&options.output_directory).is_absolute() {
-            return Err(AppError::new(
+            return Err(crate::domain::error::AppError::new(
                 "DIRECTORY_INVALID",
                 "Выберите папку сохранения.",
             ));
@@ -75,7 +66,7 @@ impl VideoGateway for MediaGateway {
         })
     }
 
-    fn cancel(&self) -> bool {
+    pub fn cancel(&self) -> bool {
         self.runner.cancel()
     }
 }

@@ -5,22 +5,38 @@ import { state } from './state.js';
 import { clearStatus, showStatus } from './status.js';
 import { invalidateMetadata, renderMetadata } from './video-view.js';
 
+let latestRequestId = 0;
+
 export async function inspectVideo(event) {
   event.preventDefault();
-  if (state.downloading) return;
+  if (state.downloading || state.inspecting) return;
+
+  const requestId = ++latestRequestId;
+  const url = elements['video-url'].value;
+
+  state.inspecting = true;
   invalidateMetadata();
   clearStatus();
-  elements.inspect.disabled = true;
   elements.inspect.textContent = 'Проверка…';
+  updateControls();
+
   try {
-    state.metadata = unwrap(await api.inspect(elements['video-url'].value));
-    renderMetadata(state.metadata);
-    showStatus('Видео найдено. Выберите качество и папку.', 'success');
+    const metadata = unwrap(await api.inspect(url));
+    if (requestId === latestRequestId && elements['video-url'].value === url) {
+      state.metadata = metadata;
+      renderMetadata(state.metadata);
+      showStatus('Видео найдено. Выберите качество и папку.', 'success');
+    }
   } catch (error) {
-    state.metadata = null;
-    showStatus(error.message, 'error');
+    if (requestId === latestRequestId) {
+      state.metadata = null;
+      showStatus(error.message, 'error');
+    }
   } finally {
-    elements.inspect.textContent = 'Проверить';
-    updateControls();
+    if (requestId === latestRequestId) {
+      state.inspecting = false;
+      elements.inspect.textContent = 'Проверить';
+      updateControls();
+    }
   }
 }

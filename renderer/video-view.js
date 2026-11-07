@@ -1,4 +1,5 @@
 import { elements } from './elements.js';
+import { formatDuration } from './format.js';
 import { state } from './state.js';
 
 function renderQualities(qualities) {
@@ -24,7 +25,9 @@ export function invalidateMetadata() {
 
 export function renderMetadata(metadata) {
   elements['video-title'].textContent = metadata.title;
-  const details = [metadata.uploader, metadata.durationLabel].filter(Boolean).join(' · ');
+  const details = [metadata.uploader, formatDuration(metadata.duration)]
+    .filter(Boolean)
+    .join(' · ');
   elements['video-details'].textContent = details;
   if (metadata.thumbnail) {
     elements.thumbnail.src = metadata.thumbnail;

@@ -12,7 +12,7 @@ pub async fn session_status(state: State<'_, AppState>) -> Result<Value, PublicE
     let sessions = state.sessions.clone();
     blocking(move || {
         sessions
-            .status()
+            .has_session()
             .map(|connected| json!({ "connected": connected }))
     })
     .await
@@ -32,7 +32,7 @@ pub async fn session_import(
     let Some(source) = source else {
         return blocking(move || {
             sessions
-                .status()
+                .has_session()
                 .map(|connected| json!({ "connected": connected }))
         })
         .await;
@@ -41,7 +41,7 @@ pub async fn session_import(
         .into_path()
         .map_err(|error| present_error(AppError::new("COOKIES_INVALID", error.to_string())))?;
     blocking(move || {
-        sessions.import(&source)?;
+        sessions.import_file(&source)?;
         Ok(json!({ "connected": true }))
     })
     .await
@@ -49,7 +49,7 @@ pub async fn session_import(
 
 #[tauri::command]
 pub async fn session_clear(state: State<'_, AppState>) -> Result<Value, PublicError> {
-    state.downloads.cancel();
+    state.videos.cancel();
     let sessions = state.sessions.clone();
     blocking(move || {
         sessions.clear()?;

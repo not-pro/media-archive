@@ -14,10 +14,21 @@ pub struct ProcessResult {
     pub exit_code: Option<i32>,
 }
 
+struct ActiveGuard<'a> {
+    active: &'a AtomicBool,
+}
+
+impl Drop for ActiveGuard<'_> {
+    fn drop(&mut self) {
+        self.active.store(false, Ordering::SeqCst);
+    }
+}
+
 #[derive(Default)]
 pub struct MediaProcessRunner {
     child: Arc<Mutex<Option<Child>>>,
     cancelled: Arc<AtomicBool>,
+    active: Arc<AtomicBool>,
 }
 
 impl MediaProcessRunner {
@@ -25,11 +36,8 @@ impl MediaProcessRunner {
         Self {
             child: Arc::new(Mutex::new(None)),
             cancelled: Arc::new(AtomicBool::new(false)),
+            active: Arc::new(AtomicBool::new(false)),
         }
-    }
-
-    pub fn running(&self) -> bool {
-        self.child.lock().unwrap().is_some()
     }
 
     pub fn cancel(&self) -> bool {
@@ -49,6 +57,15 @@ impl MediaProcessRunner {
         args: &[String],
         on_line: &dyn Fn(&str),
     ) -> AppResult<ProcessResult> {
+        if self.active.swap(true, Ordering::SeqCst) {
+            return Err(AppError::new(
+                "DOWNLOAD_BUSY",
+                "Сначала отмените текущее скачивание.",
+            ));
+        }
+        let _active_guard = ActiveGuard {
+            active: &self.active,
+        };
         self.cancelled.store(false, Ordering::SeqCst);
         let mut command = Command::new(executable);
         command

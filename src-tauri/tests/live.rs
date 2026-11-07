@@ -2,7 +2,6 @@ use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 
-use media_archive_lib::application::ports::VideoGateway;
 use media_archive_lib::domain::entities::DownloadOptions;
 use media_archive_lib::infrastructure::engine::args::SidecarPaths;
 use media_archive_lib::infrastructure::engine::gateway::MediaGateway;
