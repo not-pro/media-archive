@@ -17,13 +17,15 @@ elements.cancel.addEventListener('click', cancelDownload);
 elements['open-directory'].addEventListener('click', openDirectory);
 api.onProgress(renderProgress);
 
-api.listen('session:ready', (event) => {
-  updateSession(event.payload);
-}).then(() => {
-  api
-    .getSessionStatus()
-    .then((result) => updateSession(unwrap(result)))
-    .catch((error) => showStatus(error.message, 'error'));
-});
+api
+  .listen('session:ready', (event) => {
+    updateSession(event.payload);
+  })
+  .then(() => {
+    api
+      .getSessionStatus()
+      .then((result) => updateSession(unwrap(result)))
+      .catch((error) => showStatus(error.message, 'error'));
+  });
 
 updateControls();
