@@ -10,7 +10,8 @@
     "third-party-licenses/",
     "release/",
     "dist/",
-    ".tmp/"
+    ".tmp/",
+    ".gigacode/"
   ],
   "sortImports": {
     "order": "asc",

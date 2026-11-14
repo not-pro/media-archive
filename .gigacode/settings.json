@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node_modules/.bin/oxfmt *)",
+      "Bash(npm test)"
+    ]
+  },
+  "$version": 3
+}

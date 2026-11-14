@@ -5,10 +5,10 @@ import { cancelDownload, startDownload } from './download.js';
 import { elements } from './elements.js';
 import { inspectVideo } from './inspect.js';
 import { renderProgress } from './progress-view.js';
+import { bindSessionActions } from './session-select.js';
 import { updateSession } from './session-view.js';
 import { showStatus } from './status.js';
 import { invalidateMetadata } from './video-view.js';
-import { bindSessionActions } from './session-select.js';
 
 elements['url-form'].addEventListener('submit', inspectVideo);
 elements['video-url'].addEventListener('input', invalidateMetadata);

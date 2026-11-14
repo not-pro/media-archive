@@ -1,7 +1,7 @@
 import { api, unwrap } from './api.js';
+import { elements } from './elements.js';
 import { updateSession } from './session-view.js';
 import { showStatus } from './status.js';
-import { elements } from './elements.js';
 
 const importBrowserButton = elements['import-from-browser'];
 const importManualButton = elements['import-manually'];
@@ -32,10 +32,7 @@ export async function importFromBrowser() {
   } catch (error) {
     const code = error.code ?? '';
     if (code === 'BROWSER_NOT_FOUND' || code === 'BROWSER_ACCESS_DENIED') {
-      showStatus(
-        error.message,
-        'error',
-      );
+      showStatus(error.message, 'error');
     } else {
       showStatus(error.message, 'error');
     }
