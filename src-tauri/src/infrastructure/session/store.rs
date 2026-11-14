@@ -6,6 +6,7 @@ use keyring::{Entry, Error as KeyringError};
 use tempfile::tempdir;
 
 use crate::domain::error::{AppError, AppResult};
+use crate::infrastructure::session::browser;
 use crate::infrastructure::session::filter::filter_session_cookies;
 
 pub struct KeychainSessionStore {
@@ -63,6 +64,26 @@ impl KeychainSessionStore {
         self.entry()?
             .set_password(&filtered)
             .map_err(|error| AppError::new("SESSION_STORE_ERROR", error.to_string()))
+    }
+
+    pub fn import_from_browser(&self) -> AppResult<bool> {
+        let _lock = self.guard.lock().unwrap();
+        let raw_cookies = browser::extract()
+            .map_err(|error| AppError::new("BROWSER_EXTRACT_ERROR", error.to_string()))?;
+        let raw_cookies = match raw_cookies {
+            Some(c) => c,
+            None => {
+                return Err(AppError::new(
+                    "BROWSER_NOT_FOUND",
+                    "Браузер не найден. Войдите в YouTube в Chrome, Safari или Edge и попробуйте снова.",
+                ));
+            }
+        };
+        let filtered = filter_session_cookies(&raw_cookies)?;
+        self.entry()?
+            .set_password(&filtered)
+            .map_err(|error| AppError::new("SESSION_STORE_ERROR", error.to_string()))?;
+        Ok(true)
     }
 
     pub fn clear(&self) -> AppResult<()> {

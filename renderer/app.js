@@ -8,6 +8,7 @@ import { renderProgress } from './progress-view.js';
 import { updateSession } from './session-view.js';
 import { showStatus } from './status.js';
 import { invalidateMetadata } from './video-view.js';
+import { bindSessionActions } from './session-select.js';
 
 elements['url-form'].addEventListener('submit', inspectVideo);
 elements['video-url'].addEventListener('input', invalidateMetadata);
@@ -28,4 +29,5 @@ api
       .catch((error) => showStatus(error.message, 'error'));
   });
 
+bindSessionActions();
 updateControls();

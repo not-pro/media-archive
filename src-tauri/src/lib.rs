@@ -8,7 +8,9 @@ use tauri::Manager;
 
 use platform::directory_commands::{directory_choose, directory_open};
 use platform::menu::fixed_window_menu;
-use platform::session_commands::{session_clear, session_import, session_status};
+use platform::session_commands::{
+    session_clear, session_import, session_import_browser, session_status,
+};
 use platform::sidecars::{sidecar_paths, verify_sidecars};
 use platform::state::AppState;
 use platform::video_commands::{download_cancel, download_start, video_inspect};
@@ -34,6 +36,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             session_status,
             session_import,
+            session_import_browser,
             session_clear,
             video_inspect,
             directory_choose,

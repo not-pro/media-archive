@@ -58,6 +58,28 @@ p {
   border-color: #256745;
   background: #102d20;
 }
+.session-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 17px 20px;
+  margin-bottom: 14px;
+  background: #151d2a;
+  border: 1px solid #2a374c;
+  border-radius: 12px;
+}
+.session-panel h2 {
+  font-size: 14px;
+  margin: 0 0 4px;
+  color: #c9d3e1;
+}
+.session-panel p {
+  color: #9aa8bc;
+  font-size: 12px;
+  margin: 0;
+  max-width: 420px;
+}
 main {
   width: min(100% - 40px, 710px);
   margin: 0 auto 28px;

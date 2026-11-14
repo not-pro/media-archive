@@ -1,6 +1,9 @@
 export const elements = Object.fromEntries(
   [
     'session-badge',
+    'import-from-browser',
+    'import-manually',
+    'clear-session',
     'url-form',
     'video-url',
     'inspect',

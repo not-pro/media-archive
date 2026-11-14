@@ -17,6 +17,9 @@ async function wrap(request) {
 
 export const api = {
   getSessionStatus: () => wrap(invoke('session_status')),
+  importCookies: () => wrap(invoke('session_import')),
+  importFromBrowser: () => wrap(invoke('session_import_browser')),
+  clearCookies: () => wrap(invoke('session_clear')),
   inspect: (url) => wrap(invoke('video_inspect', { url })),
   chooseDirectory: () => wrap(invoke('directory_choose')),
   startDownload: (options) => wrap(invoke('download_start', { options })),
