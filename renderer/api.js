@@ -17,13 +17,15 @@ async function wrap(request) {
 
 export const api = {
   getSessionStatus: () => wrap(invoke('session_status')),
-  importCookies: () => wrap(invoke('session_import')),
-  clearCookies: () => wrap(invoke('session_clear')),
   inspect: (url) => wrap(invoke('video_inspect', { url })),
   chooseDirectory: () => wrap(invoke('directory_choose')),
   startDownload: (options) => wrap(invoke('download_start', { options })),
   cancelDownload: () => wrap(invoke('download_cancel')),
   openDirectory: (directory) => wrap(invoke('directory_open', { directory })),
+  listen: (event, callback) => {
+    const unlisten = listen(event, (event) => callback(event));
+    return Promise.resolve(unlisten);
+  },
   onProgress: (callback) => {
     const unlisten = listen('download:progress', (event) => callback(event.payload));
     return () => unlisten.then((remove) => remove());

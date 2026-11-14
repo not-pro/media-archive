@@ -3,6 +3,7 @@ pub mod infrastructure;
 mod platform;
 pub mod presentation;
 
+use tauri::Emitter;
 use tauri::Manager;
 
 use platform::directory_commands::{directory_choose, directory_open};
@@ -21,7 +22,13 @@ pub fn run() {
             app.set_menu(fixed_window_menu(app.handle())?)?;
             let paths = sidecar_paths(app.handle())?;
             verify_sidecars(&paths)?;
-            app.manage(AppState::new(paths));
+            let state = AppState::new(paths);
+            app.manage(state.clone());
+            let has_session = state.sessions.has_session().unwrap_or(false);
+            let handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                let _ = handle.emit("session:ready", has_session);
+            });
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

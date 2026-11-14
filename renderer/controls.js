@@ -9,8 +9,6 @@ export function updateControls() {
   elements['choose-directory'].disabled = state.downloading;
   elements.quality.disabled = state.downloading;
   elements.overwrite.disabled = state.downloading;
-  elements['import-cookies'].disabled = busy;
-  elements['clear-cookies'].disabled = busy;
   elements.cancel.hidden = !state.downloading;
   elements.download.hidden = state.downloading;
   elements['open-directory'].disabled = !state.directory || state.downloading;
