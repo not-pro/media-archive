@@ -14,6 +14,14 @@ fn rule(
 
 pub fn map_engine_error(output: &str) -> AppError {
     let text = output.to_lowercase();
+    if text.contains("cookies.binarycookies")
+        && (text.contains("operation not permitted") || text.contains("permission denied"))
+    {
+        return AppError::new(
+            "SAFARI_SESSION_PERMISSION_DENIED",
+            "Для входа через Safari разрешите Media Archive полный доступ к диску в «Системных настройках → Конфиденциальность и безопасность», затем перезапустите приложение.",
+        );
+    }
     if text.contains("decrypt") && (text.contains("cookie") || text.contains("dpapi"))
         || text.contains("cookie")
             && (text.contains("database") || text.contains("permission denied"))
@@ -114,4 +122,23 @@ pub fn map_engine_error(output: &str) -> AppError {
         "DOWNLOAD_FAILED",
         format!("Загрузчик завершился с ошибкой: {detail}"),
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::map_engine_error;
+
+    #[test]
+    fn safari_cookie_permission_error_allows_session_fallback() {
+        let error = map_engine_error(concat!(
+            "ERROR: [Errno 1] Operation not permitted: ",
+            "'/Users/example/Library/Containers/com.apple.Safari/Data/Library/Cookies/Cookies.binarycookies'",
+        ));
+        assert_eq!(error.code, "SAFARI_SESSION_PERMISSION_DENIED");
+
+        let error = map_engine_error(
+            "ERROR: [Errno 1] Operation not permitted: '/Users/example/Downloads/video.mp4'",
+        );
+        assert_eq!(error.code, "DOWNLOAD_FAILED");
+    }
 }

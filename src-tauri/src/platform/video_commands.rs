@@ -24,12 +24,16 @@ fn with_session<T>(
     browsers: impl IntoIterator<Item = &'static str>,
     mut operation: impl FnMut(Option<Cookies<'_>>) -> AppResult<T>,
 ) -> AppResult<T> {
-    let anonymous_error = match operation(None) {
+    let mut anonymous_error = match operation(None) {
         Err(error) if needs_session(&error) => error,
         result => return result,
     };
     for browser in browsers {
         match operation(Some(Cookies::Browser(browser))) {
+            Err(error) if error.code == "SAFARI_SESSION_PERMISSION_DENIED" => {
+                anonymous_error.message.push(' ');
+                anonymous_error.message.push_str(&error.message);
+            }
             Err(error) if needs_session(&error) || error.code == "BROWSER_SESSION_UNAVAILABLE" => {}
             result => return result,
         }
@@ -96,11 +100,11 @@ mod tests {
     use crate::infrastructure::engine::error_mapper::map_engine_error;
 
     #[test]
-    fn private_video_tries_the_next_browser_if_the_first_is_unavailable() {
+    fn private_video_tries_the_next_browser_if_a_session_is_unavailable() {
         let mut attempts = 0;
         let result = with_session(
             &KeychainSessionStore::new(),
-            ["chrome", "firefox"],
+            ["chrome", "safari", "firefox"],
             |cookies| {
                 attempts += 1;
                 match cookies {
@@ -110,12 +114,15 @@ mod tests {
                     Some(Cookies::Browser("chrome")) => {
                         Err(map_engine_error("Could not copy Chrome cookie database"))
                     }
+                    Some(Cookies::Browser("safari")) => Err(map_engine_error(
+                        "Operation not permitted: 'Cookies.binarycookies'",
+                    )),
                     Some(Cookies::Browser("firefox")) => Ok("accessible"),
                     _ => panic!("unexpected session source"),
                 }
             },
         );
         assert_eq!(result.unwrap(), "accessible");
-        assert_eq!(attempts, 3);
+        assert_eq!(attempts, 4);
     }
 }
