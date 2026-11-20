@@ -1,6 +1,6 @@
 [package]
 name = "media-archive"
-version = "1.0.7"
+version = "1.0.8"
 edition = "2024"
 rust-version = "1.90"
 description = "Desktop media archive for authorized offline access"

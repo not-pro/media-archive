@@ -10,7 +10,10 @@ use crate::platform::state::AppState;
 use crate::presentation::view::{PublicError, present_error};
 
 #[tauri::command]
-pub fn directory_choose(app: AppHandle, state: State<'_, AppState>) -> Result<Value, PublicError> {
+pub async fn directory_choose(
+    app: AppHandle,
+    state: State<'_, AppState>,
+) -> Result<Value, PublicError> {
     let selected = app
         .dialog()
         .file()
