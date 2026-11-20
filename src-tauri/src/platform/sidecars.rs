@@ -12,6 +12,13 @@ pub fn sidecar_paths(app: &AppHandle) -> AppResult<SidecarPaths> {
         PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("../sidecars")
             .join(target)
+    } else if cfg!(target_os = "macos") {
+        let executable = std::env::current_exe()
+            .map_err(|error| AppError::new("RESOURCE_ERROR", error.to_string()))?;
+        executable
+            .parent()
+            .ok_or_else(|| AppError::new("RESOURCE_ERROR", "Папка приложения не найдена."))?
+            .to_path_buf()
     } else {
         app.path()
             .resource_dir()

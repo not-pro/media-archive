@@ -3,14 +3,11 @@ pub mod infrastructure;
 mod platform;
 pub mod presentation;
 
-use tauri::Emitter;
 use tauri::Manager;
 
 use platform::directory_commands::{directory_choose, directory_open};
 use platform::menu::fixed_window_menu;
-use platform::session_commands::{
-    session_clear, session_import, session_import_browser, session_status,
-};
+use platform::session_commands::{session_clear, session_import, session_status};
 use platform::sidecars::{sidecar_paths, verify_sidecars};
 use platform::state::AppState;
 use platform::video_commands::{download_cancel, download_start, video_inspect};
@@ -24,19 +21,12 @@ pub fn run() {
             app.set_menu(fixed_window_menu(app.handle())?)?;
             let paths = sidecar_paths(app.handle())?;
             verify_sidecars(&paths)?;
-            let state = AppState::new(paths);
-            app.manage(state.clone());
-            let has_session = state.sessions.has_session().unwrap_or(false);
-            let handle = app.handle().clone();
-            tauri::async_runtime::spawn(async move {
-                let _ = handle.emit("session:ready", has_session);
-            });
+            app.manage(AppState::new(paths));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             session_status,
             session_import,
-            session_import_browser,
             session_clear,
             video_inspect,
             directory_choose,

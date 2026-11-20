@@ -3,7 +3,7 @@ use std::path::Path;
 use crate::domain::entities::{DownloadOptions, DownloadProgress, DownloadResult, VideoMetadata};
 use crate::domain::error::AppResult;
 use crate::domain::media_url::normalize_media_url;
-use crate::infrastructure::engine::args::{SidecarPaths, inspect_args};
+use crate::infrastructure::engine::args::{Cookies, SidecarPaths, inspect_args};
 use crate::infrastructure::engine::download_args::download_args;
 use crate::infrastructure::engine::error_mapper::map_engine_error;
 use crate::infrastructure::engine::metadata::parse_metadata;
@@ -23,7 +23,7 @@ impl MediaGateway {
         }
     }
 
-    pub fn inspect(&self, url: &str, cookies: Option<&Path>) -> AppResult<VideoMetadata> {
+    pub fn inspect(&self, url: &str, cookies: Option<Cookies<'_>>) -> AppResult<VideoMetadata> {
         let url = normalize_media_url(url)?;
         let args = inspect_args(&self.paths, cookies, &url);
         let result = self.runner.run(&self.paths.engine, &args, &|_| {})?;
@@ -39,7 +39,7 @@ impl MediaGateway {
     pub fn download(
         &self,
         options: &DownloadOptions,
-        cookies: Option<&Path>,
+        cookies: Option<Cookies<'_>>,
         progress: &dyn Fn(DownloadProgress),
     ) -> AppResult<DownloadResult> {
         if !Path::new(&options.output_directory).is_absolute() {

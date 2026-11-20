@@ -8,7 +8,13 @@ pub struct SidecarPaths {
     pub probe: PathBuf,
 }
 
-pub fn base_args(paths: &SidecarPaths, cookies: Option<&Path>) -> Vec<String> {
+#[derive(Clone, Copy)]
+pub enum Cookies<'a> {
+    File(&'a Path),
+    Browser(&'static str),
+}
+
+pub fn base_args(paths: &SidecarPaths, cookies: Option<Cookies<'_>>) -> Vec<String> {
     let mut args = vec![
         "--ignore-config".into(),
         "--no-plugin-dirs".into(),
@@ -27,13 +33,19 @@ pub fn base_args(paths: &SidecarPaths, cookies: Option<&Path>) -> Vec<String> {
         "--extractor-args".into(),
         "youtube:fetch_pot=never".into(),
     ];
-    if let Some(file) = cookies {
-        args.extend(["--cookies".into(), file.display().to_string()]);
+    match cookies {
+        Some(Cookies::File(file)) => {
+            args.extend(["--cookies".into(), file.display().to_string()]);
+        }
+        Some(Cookies::Browser(browser)) => {
+            args.extend(["--cookies-from-browser".into(), browser.into()]);
+        }
+        None => {}
     }
     args
 }
 
-pub fn inspect_args(paths: &SidecarPaths, cookies: Option<&Path>, url: &str) -> Vec<String> {
+pub fn inspect_args(paths: &SidecarPaths, cookies: Option<Cookies<'_>>, url: &str) -> Vec<String> {
     let mut args = base_args(paths, cookies);
     args.extend([
         "--dump-single-json".into(),

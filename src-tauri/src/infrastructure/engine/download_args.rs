@@ -1,15 +1,13 @@
-use std::path::Path;
-
 use crate::domain::entities::DownloadOptions;
 use crate::domain::error::AppResult;
 use crate::domain::format_selector::build_format_selector;
-use crate::infrastructure::engine::args::{SidecarPaths, base_args};
+use crate::infrastructure::engine::args::{Cookies, SidecarPaths, base_args};
 use crate::infrastructure::engine::output::{FILE_PREFIX, PROGRESS_PREFIX};
 
 pub fn download_args(
     paths: &SidecarPaths,
     options: &DownloadOptions,
-    cookies: Option<&Path>,
+    cookies: Option<Cookies<'_>>,
     url: &str,
 ) -> AppResult<Vec<String>> {
     let progress = format!(

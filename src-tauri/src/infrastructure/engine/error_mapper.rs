@@ -14,6 +14,15 @@ fn rule(
 
 pub fn map_engine_error(output: &str) -> AppError {
     let text = output.to_lowercase();
+    if text.contains("decrypt") && (text.contains("cookie") || text.contains("dpapi"))
+        || text.contains("cookie")
+            && (text.contains("database") || text.contains("permission denied"))
+    {
+        return AppError::new(
+            "BROWSER_SESSION_UNAVAILABLE",
+            "Не удалось прочитать сессию браузера.",
+        );
+    }
     let rules: &[(&[&str], &str, &str)] = &[
         (
             &["drm", "widevine"],
@@ -31,9 +40,14 @@ pub fn map_engine_error(output: &str) -> AppError {
             "Материал доступен только участникам канала. Проверьте подписку и cookies.",
         ),
         (
-            &["private video", "granted access", "no permission"],
+            &[
+                "private video",
+                "video is private",
+                "granted access",
+                "no permission",
+            ],
             "ACCESS_DENIED",
-            "У текущей сессии нет доступа к этому материалу.",
+            "Войдите в браузере в аккаунт YouTube с доступом к этому видео и повторите попытку.",
         ),
         (
             &["age-restrict", "confirm your age", "age verification"],
@@ -48,7 +62,7 @@ pub fn map_engine_error(output: &str) -> AppError {
                 "cookies invalid",
             ],
             "AUTH_REQUIRED",
-            "Нужен вход или сессия истекла. Импортируйте свежие cookies.",
+            "Войдите в YouTube в браузере и повторите попытку.",
         ),
         (
             &[

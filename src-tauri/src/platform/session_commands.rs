@@ -48,16 +48,6 @@ pub async fn session_import(
 }
 
 #[tauri::command]
-pub async fn session_import_browser(state: State<'_, AppState>) -> Result<Value, PublicError> {
-    let sessions = state.sessions.clone();
-    blocking(move || {
-        sessions.import_from_browser()?;
-        Ok(json!({ "connected": true }))
-    })
-    .await
-}
-
-#[tauri::command]
 pub async fn session_clear(state: State<'_, AppState>) -> Result<Value, PublicError> {
     state.videos.cancel();
     let sessions = state.sessions.clone();
