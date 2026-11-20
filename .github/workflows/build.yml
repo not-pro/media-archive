@@ -45,7 +45,10 @@ jobs:
       - name: Verify macOS application signature and disk image
         if: runner.os == 'macOS'
         run: |
-          codesign --verify --deep --strict "src-tauri/target/release/bundle/macos/Media Archive.app"
+          app="src-tauri/target/release/bundle/macos/Media Archive.app"
+          codesign --verify --deep --strict "$app"
+          "$app/Contents/MacOS/yt-dlp" --version
+          "$app/Contents/MacOS/deno" eval 'console.log(1 + 1)'
           hdiutil verify src-tauri/target/release/bundle/dmg/*.dmg
       - uses: actions/upload-artifact@v4
         with:

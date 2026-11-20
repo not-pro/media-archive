@@ -34,7 +34,8 @@
     "createUpdaterArtifacts": false,
     "macOS": {
       "minimumSystemVersion": "13.0",
-      "signingIdentity": "-"
+      "signingIdentity": "-",
+      "entitlements": "macos-entitlements.plist"
     },
     "windows": {
       "nsis": {
